@@ -1,0 +1,52 @@
+function VTKExportVectorMap(filres,var,xo,yo,umap,vmap,dx,smap,sname)
+if nargin<7, dx=1;end
+
+%xo=xo-xo(1);
+%yo=yo-yo(1);
+%%
+set.vtkname= [filres '-'  var  '.vtk'];
+set.ascii=0;
+set.remark=set.vtkname;
+set.dim=[(xo(length(xo))-xo(1)+1) (yo(length(yo))-yo(1)+1) 1];
+set.origin=[xo(1) yo(1) 0];
+set.spacing=[dx dx 0];
+set.varname=var;
+np=numel(umap);
+%%
+fwid = fopen(fullfile('VTK',set.vtkname),'w','b'); % IMPORTANT: big endian
+count = fprintf(fwid,'# vtk DataFile Version 2.0\n');
+count = fprintf(fwid,[set.remark,'\n']);
+if set.ascii
+    count = fprintf(fwid,'ASCII\n');
+else
+    count = fprintf(fwid,'BINARY\n');
+end
+count = fprintf(fwid,'DATASET STRUCTURED_POINTS\n');
+count = fprintf(fwid,'DIMENSIONS %u %u %u\n',set.dim);
+%count = fprintf(fwid,'DIMENSIONS %5.3e %5.3e %5.3e\n',set.dim);
+count = fprintf(fwid,'ORIGIN %u %u %u\n',set.origin);
+%count = fprintf(fwid,'SPACING %3.2f %3.2f %3.2f\n',set.spacing);
+count = fprintf(fwid,'SPACING %5.3e %5.3e %5.3e\n',set.spacing);
+count = fprintf(fwid,'POINT_DATA %u\n',np);
+count = fprintf(fwid,['VECTORS ',set.varname,' float\n']);
+
+% write data to vtk file
+tic
+fprintf(1,['writing ',set.vtkname,' ... ']);
+map=[umap(:)';vmap(:)';0*umap(:)'];
+%for ip=1:np
+
+%    fprintf(fwid, '%g %g %g \n', map);
+fwrite(fwid,map,'float');
+if nargin>7
+    for is=1:size(smap,2)
+        count = fprintf(fwid,['SCALARS ',sname{is},' float,1\n']);
+        count = fprintf(fwid,'LOOKUP_TABLE default\n');
+        fwrite(fwid, smap(:,is),'float');
+    end
+    
+end
+
+%end
+fclose(fwid);
+fprintf(1,'vtkexport done in %5.3f s\n',toc);

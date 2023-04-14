@@ -1,0 +1,5 @@
+echo off
+d:
+cd\
+cd temp
+abaqus job=toto analysis=background 
