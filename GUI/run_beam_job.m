@@ -526,7 +526,7 @@ switch model.basis
             indp((nel+1):end)=[];
             indn((nel+1):end)=[];
             dval((nel+1):end)=[];
-            phixx=[phixx,sparse(indp,indn,dsdx*dval,prod(sizeim),Nny)];
+            phixx(:,(end-(Nny-1)):end)=sparse(indp,indn,dsdx*dval,prod(sizeim),Nny);
         end
         naxis=0.5*(phixx*U)./curv*dtdx;
         

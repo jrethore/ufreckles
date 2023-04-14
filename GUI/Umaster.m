@@ -1,28 +1,6 @@
 function varargout=Umaster(varargin)
 % UMASTER MATLAB code for Umaster.fig
-%      UMASTER, by itself, creates a new UMASTER or raises the existing
-%      singleton*.
-%
-%      H=UMASTER returns the handle to a new UMASTER or the handle to
-%      the existing singleton*.
-%
-%      UMASTER('CALLBACK',hObject,eventData,handles,...) calls the local0
-%      function named CALLBACK in UMASTER.M with the given input arguments.
-%
-%      UMASTER('Property','Value',...) creates a new UMASTER or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before Umaster_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to Umaster_OpeningFcn via varargin.
-%
-%      *See GUI Options on GUIDE's Tools menu.  Choose ;...GUI allows only one
-%      instance to run (singleton);....
-%
-% See also: GUIDE, GUIDATA, GUIHANDLES
-
-% Edit the above text to modify the response to help Umaster
-
-% Last Modified by GUIDE v2.5 26-Apr-2016 15:19:29
+%      UMASTER, by itself, creates a GUI for UFreckles
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton=1;
@@ -86,6 +64,9 @@ set(tx1,'Color','blue','LineStyle','none','FitBoxToText','on','FontSize',12);
 tx2=annotation('textbox',[0.008-0.002,0.05+1/20*3/2,0.02,0.02],'String','Y');
 set(tx2,'Color','blue','LineStyle','none','FitBoxToText','on','FontSize',12);
 handles.axis=[ax1,ax2,tx1,tx2];
+
+nb_cols_cscale=50;
+strain_on_elts=1;
 if isdeployed
     try
         logoim=(fullfile(ctfroot,'ufreckles','logo.png'));
@@ -94,9 +75,29 @@ if isdeployed
         logoim=(fullfile(ctfroot,'UFreckles','logo.png'));
         image(permute(readim(logoim),[2,1,3]))
     end
+    try
+        fid=fopen('ufreckles.par','r');
+        buf=textscan(fid,'%s');
+        buf=buf{1};
+        for ii=1:length(buf)
+            eval(buf{ii});
+        end
+        fclose(fid);
+    catch
+    end
 else
     logoim='logo.png';
     image(permute(readim(logoim),[2,1,3]))
+    try
+        fid=fopen('ufreckles.par','r');
+        buf=textscan(fid,'%s');
+        buf=buf{1};
+        for ii=1:length(buf)
+            eval(buf{ii});
+        end
+        fclose(fid);
+    catch
+    end
 end
 axis off
 axis xy
@@ -111,11 +112,14 @@ cmap=[
     1,0,0;...
     0.878431,0,1;...
     ];
-handles.cmap=interp1(cmap,1:0.05:size(cmap,1));
+%handles.cmap=interp1(cmap,1:0.05:size(cmap,1));
+
+handles.cmap=interp1(cmap,linspace(1,size(cmap,1),nb_cols_cscale));
 handles.wfac=1;
 handles.zfac=1;
 handles.stereo=0;
 handles.gim=0;
+handles.sonelt=strain_on_elts;
 handles.fsolver=0;
 handles.umaster=handles.figure1;
 handles.gpoint=[];
@@ -1424,11 +1428,11 @@ if FilterIndex==1%   exist('U','var')
     if 1
         delete(fullfile('TMP','ufreckles.res'))
         clear ComputeStrain
-%         save(fullfile('TMP','ufreckles.res'),'xo','yo','conn','elt','Nnodes','Nelems','rint');
-%         if handles.stereo
-%             save(fullfile('TMP','ufreckles.res'),'Xo','Yo','Zo','-append');
-%         end
-%         handles=ComputeStrain(handles,1);
+        %         save(fullfile('TMP','ufreckles.res'),'xo','yo','conn','elt','Nnodes','Nelems','rint');
+        %         if handles.stereo
+        %             save(fullfile('TMP','ufreckles.res'),'Xo','Yo','Zo','-append');
+        %         end
+        %         handles=ComputeStrain(handles,1);
         
     else
         if handles.stereo
@@ -1499,19 +1503,19 @@ if FilterIndex==1%   exist('U','var')
             handles.erroronelt=0;
         else
             fide=fopen([strrep(handles.param.result_file,'.res',''),'-error.res'],'r');
-try            
-    erroronelt=fread(fide,1);
-            fclose(fide);
-            handles.erroronelt=erroronelt;
-            if erroronelt
-                ie=repmat((1:length(elt))',1,size(conn,2));
-                eton=sparse(conn,ie,val,prod(Nnodes),prod(Nelems));
-                eton=diag(sparse(1./sum(eton,2)))*eton;
-                handles.eton=eton;
+            try
+                erroronelt=fread(fide,1);
+                fclose(fide);
+                handles.erroronelt=erroronelt;
+                if erroronelt
+                    ie=repmat((1:length(elt))',1,size(conn,2));
+                    eton=sparse(conn,ie,val,prod(Nnodes),prod(Nelems));
+                    eton=diag(sparse(1./sum(eton,2)))*eton;
+                    handles.eton=eton;
+                end
+            catch
+                %    keyboard
             end
-catch
-%    keyboard
-end
         end
     end
     set(handles.message_text,'String','Loading result file.....done')
@@ -2497,11 +2501,11 @@ lh=@(xy) (GetMeshDensity(handles.fem_model,xy(:,1),xy(:,2)));
 if ~isempty(indc)
     out=feval(ld,xyfix)>=(0.001*mean(h)*min(d));
     %    out=feval(ld,xyfix)>0.75*2*mean(h)*hmin*feval(lh,xyfix);
-%    xyfix=xyfix(~out,:);
+    %    xyfix=xyfix(~out,:);
     new_id=0*out;
     new_id(~out)=1:sum(~out);
-%plot(xyfix*[1;1i],'ms')
-%plot([xo(1:sum(~out)),yo(1:sum(~out))]*[1;1i],'g*')
+    %plot(xyfix*[1;1i],'ms')
+    %plot([xo(1:sum(~out)),yo(1:sum(~out))]*[1;1i],'g*')
     
     
     duplicated=[];
@@ -2516,10 +2520,10 @@ if ~isempty(indc)
                         if dmin>(0.001*mean(h)*min(d))
                             nodes(in)=0;
                         else
-                        nodes(in)=idmin;
+                            nodes(in)=idmin;
                         end
                     end
-%                    nodes=new_id(nodes);
+                    %                    nodes=new_id(nodes);
                     nodes(nodes==0)=[];
                     if id==1,tipin=[nodes(1),nodes(end)]>0;end
                     segc=[nodes(1:end-1),nodes(2:end)];
@@ -2580,22 +2584,25 @@ if ~isempty(indc)
                         if ~isempty(duplicated)
                             ldup=[];
                             inn=numel(toadd)-1;
-                                inod=nodes(toadd(inn),1);
-                                elts=sum(conn==inod,2)>0;inods=conn(elts,:);
-                                
-                                for ii=1:numel(inods)
-                                    if any(duplicated(:,2)==inods(ii))
-                                        nodes(toadd(end),:)=duplicated(duplicated(:,1)==nodes(toadd(end),1),2);
-                                        break
+                            inod=nodes(toadd(inn),1);
+                            elts=sum(conn==inod,2)>0;inods=conn(elts,:);
+                            
+                            for ii=1:numel(inods)
+                                if any(duplicated(:,2)==inods(ii))
+                                    try
+                                    nodes(toadd(end),:)=duplicated(duplicated(:,1)==nodes(toadd(end),1),2);
+                                    catch
                                     end
+                                    break
                                 end
+                            end
                         end
                         nodes(toadd,2)=length(xo)+(1:length(toadd));
-                         xo=[xo;xo(nodes(toadd,1))];
+                        xo=[xo;xo(nodes(toadd,1))];
                         yo=[yo;yo(nodes(toadd,1))];
                         duplicated=[duplicated;nodes(toadd,:)];
- %                       plot(xo(nodes(toadd,1)),yo(nodes(toadd,1)),[couls(iz),simb(iz)])
-                       for ip=1:length(toadd)
+                        %                       plot(xo(nodes(toadd,1)),yo(nodes(toadd,1)),[couls(iz),simb(iz)])
+                        for ip=1:length(toadd)
                             %                             inods=nodes(toadd(ip),1);
                             %                             seg=-t(toadd(ip));
                             %                             mid=(xo(inods)+1i*yo(inods));
@@ -2647,11 +2654,11 @@ if ~isempty(indc)
                                 n=-t*exp(1i*pi/2);
                                 side=real(((xc+1i*yc)-zn)*(n)');
                                 if side<0
-%                                    'duplicated'
+                                    %                                    'duplicated'
                                     nelt=conn(elts(ii),:);
                                     nelt(nelt==inods)=nodes(toadd(ip),2);
                                     conn(elts(ii),:)=nelt;
-%                                    plot(xo(nodes(toadd(ip),1)),yo(nodes(toadd(ip),1)),[couls(iz),'o'])
+                                    %                                    plot(xo(nodes(toadd(ip),1)),yo(nodes(toadd(ip),1)),[couls(iz),'o'])
                                 end
                                 
                             end
@@ -2832,15 +2839,15 @@ if ~exist(fullfile('TMP','ufreckles.res'),'file')
     Nelems=handles.mvisu.Nelems;
     conn=handles.mvisu.conn;
     elt=handles.mvisu.elt;
-    rint=1;
+    rint=handles.sonelt;
     conn=max(conn,1);
-            save(fullfile('TMP','ufreckles.res'),'xo','yo','conn','elt','Nnodes','Nelems','rint');
-        if handles.stereo
-              Xo=handles.mvisu.Xo;
+    save(fullfile('TMP','ufreckles.res'),'xo','yo','conn','elt','Nnodes','Nelems','rint');
+    if handles.stereo
+        Xo=handles.mvisu.Xo;
         Yo=handles.mvisu.Yo;
         Zo=handles.mvisu.Zo;
-          save(fullfile('TMP','ufreckles.res'),'Xo','Yo','Zo','-append');
-        end
+        save(fullfile('TMP','ufreckles.res'),'Xo','Yo','Zo','-append');
+    end
 end
 if handles.stereo
     [dphidx,dphidy,dphidz]=CreateGradFiniteElementBasis25D(fullfile('TMP','ufreckles.res'),handles.sizeim,1,zone,'Gauss_points',true);
@@ -2882,17 +2889,17 @@ if ~exist(fullfile('TMP','ufreckles.res'),'file')
     Nelems=handles.mvisu.Nelems;
     conn=handles.mvisu.conn;
     elt=handles.mvisu.elt;
-%    rint=0;
-    rint=1;
+%    rint=1;
+    rint=handles.sonelt;
     conn=max(conn,1);
-            save(fullfile('TMP','ufreckles.res'),'xo','yo','conn','elt','Nnodes','Nelems','rint');
-        if handles.stereo
-              Xo=handles.mvisu.Xo;
+    save(fullfile('TMP','ufreckles.res'),'xo','yo','conn','elt','Nnodes','Nelems','rint');
+    if handles.stereo
+        Xo=handles.mvisu.Xo;
         Yo=handles.mvisu.Yo;
         Zo=handles.mvisu.Zo;
-          save(fullfile('TMP','ufreckles.res'),'Xo','Yo','Zo','-append');
-        end
-        restart=1;
+        save(fullfile('TMP','ufreckles.res'),'Xo','Yo','Zo','-append');
+    end
+    restart=1;
 end
 persistent ijm dphidx dphidy eton gp2cell fstrain
 go=0;
@@ -2915,36 +2922,40 @@ if handles.animation.iim>0
         else
             [dphidx,dphidy]=CreateGradFiniteElementBasis(fullfile('TMP','ufreckles.res'),handles.sizeim,1,[],'Gauss_points');
         end
-        gp2cell=1;
-        eton=1;
-         load(fullfile('TMP','ufreckles.res'),'-mat','rint','elt','Nnodes','Nelems','conn')
-%         val=double(conn>0);
-%         conn=max(conn,1);
-%         ie=repmat((1:length(elt))',1,size(conn,2));
-%         eton=sparse(conn,ie,val,prod(Nnodes),prod(Nelems));
-%         eton=diag(sparse(1./sum(eton,2)))*eton;
-%         ngq=4;
-%         if rint,ngq=1;end
-%         indi=repmat((1:length(elt))',1,ngq);
-%         val=repmat((elt==4)/ngq,1,ngq)+[(elt==3),repmat(0,length(elt),ngq-1)];
-%         indj=ones(size(indi'));
-%         found=find(val'>0);
-%         indj(found)=1:length(found);
-%         indj=indj';
-%         foundt3=find(elt==3);
-%         foundq4=find(elt==4);
-%         foundt=[foundt3;foundq4];
-%         val=val(foundt,:);
-%         indi=indi(foundt,:);
-%         gp2cell=sparse(indi,indj,val);
-
-handles.evisu.xg=zeros(numel(elt),1);
-handles.evisu.yg=zeros(numel(elt),1);
-handles.evisu.xg(elt==3)=mean(xo(conn(elt==3,1:3)),2);
-handles.evisu.xg(elt==4)=mean(xo(conn(elt==4,1:4)),2);
-handles.evisu.yg(elt==3)=mean(yo(conn(elt==3,1:3)),2);
-handles.evisu.yg(elt==4)=mean(yo(conn(elt==4,1:4)),2);
-     end
+        load(fullfile('TMP','ufreckles.res'),'-mat','xo','yo','rint','elt','Nnodes','Nelems','conn')
+        if handles.sonelt
+            gp2cell=1;
+            eton=1;
+        else
+            
+            val=double(conn>0);
+            conn=max(conn,1);
+            ie=repmat((1:length(elt))',1,size(conn,2));
+            eton=sparse(conn,ie,val,prod(Nnodes),prod(Nelems));
+            eton=diag(sparse(1./sum(eton,2)))*eton;
+            ngq=4;
+            if rint,ngq=1;end
+            indi=repmat((1:length(elt))',1,ngq);
+            val=repmat((elt==4)/ngq,1,ngq)+[(elt==3),repmat(0,length(elt),ngq-1)];
+            indj=ones(size(indi'));
+            found=find(val'>0);
+            indj(found)=1:length(found);
+            indj=indj';
+            foundt3=find(elt==3);
+            foundq4=find(elt==4);
+            foundt=[foundt3;foundq4];
+            val=val(foundt,:);
+            indi=indi(foundt,:);
+            gp2cell=sparse(indi,indj,val);
+        end
+        
+        handles.evisu.xg=zeros(numel(elt),1);
+        handles.evisu.yg=zeros(numel(elt),1);
+        handles.evisu.xg(elt==3)=mean(xo(conn(elt==3,1:3)),2);
+        handles.evisu.xg(elt==4)=mean(xo(conn(elt==4,1:4)),2);
+        handles.evisu.yg(elt==3)=mean(yo(conn(elt==3,1:3)),2);
+        handles.evisu.yg(elt==4)=mean(yo(conn(elt==4,1:4)),2);
+    end
     if  (~(ijm==handles.animation.iim))||(~(fstrain==handles.fstrain))||restart
         load(fullfile('TMP','ufreckles.res'),'-mat','Nnodes')
         ijm=handles.animation.iim;
@@ -3097,12 +3108,12 @@ if handles.preview
                         Uxo=Uxo((1:length(xo)));
                         Uzo=0;
                         
-%                         filk=sprintf('%s-crack-%02d-sif.res',strrep(handles.param.result_file,'.res',''),1);
-%                         Step=handles.fem_model.zone{5,1}.steps;
-%                         Urbt=0*Step;
-%                         load(filk,'-mat','xytips','Urbt')
-%                         Uxo=real(Urbt(Step==iim));
-%                         Uyo=imag(Urbt(Step==iim));
+                        %                         filk=sprintf('%s-crack-%02d-sif.res',strrep(handles.param.result_file,'.res',''),1);
+                        %                         Step=handles.fem_model.zone{5,1}.steps;
+                        %                         Urbt=0*Step;
+                        %                         load(filk,'-mat','xytips','Urbt')
+                        %                         Uxo=real(Urbt(Step==iim));
+                        %                         Uyo=imag(Urbt(Step==iim));
                         
                         if ~(handles.wfac==1)||~(handles.showim)
                             Uxyz(:,1)=Uxyz(:,1)-Uxo;
@@ -3162,7 +3173,9 @@ if handles.preview
                     end
                 end
             case 2
-                flatinter='flat';
+                if handles.sonelt
+                    flatinter='flat';
+                end
                 handles=ComputeStrain(handles);
                 dudx=handles.evisu.xx;
                 dudy=handles.evisu.xy;
@@ -3461,9 +3474,9 @@ if iim|| handles.field==4
                 conn=conn(:,1:3);
             end
         end
-%        gmesh=trimesh(conn,min(max(xo+roi(1)-1+Uxc*handles.ondefimage*(handles.wfac==1)+handles.wfac*handles.ondefimage*Uxyz(:,1+decu),1-1000000*(dview||~handles.showim)),sizeim(1)+1000000*(dview||~handles.showim)),...
-%            min(max(yo+roi(3)-1+Uyc*handles.ondefimage*(handles.wfac==1)+handles.wfac*handles.ondefimage*Uxyz(:,2+decu),1-1000000*(dview||~handles.showim)),sizeim(2)+1000000*(dview||~handles.showim)),...
-%            zo+handles.wfac*handles.ondefimage*Uxyz(:,3+decu),nU);
+        %        gmesh=trimesh(conn,min(max(xo+roi(1)-1+Uxc*handles.ondefimage*(handles.wfac==1)+handles.wfac*handles.ondefimage*Uxyz(:,1+decu),1-1000000*(dview||~handles.showim)),sizeim(1)+1000000*(dview||~handles.showim)),...
+        %            min(max(yo+roi(3)-1+Uyc*handles.ondefimage*(handles.wfac==1)+handles.wfac*handles.ondefimage*Uxyz(:,2+decu),1-1000000*(dview||~handles.showim)),sizeim(2)+1000000*(dview||~handles.showim)),...
+        %            zo+handles.wfac*handles.ondefimage*Uxyz(:,3+decu),nU);
         
         gmesh=patch('Faces',conn,'Vertices',[min(max(xo+roi(1)-1+Uxc*handles.ondefimage*(handles.wfac==1)+handles.wfac*handles.ondefimage*Uxyz(:,1+decu),1-1000000*(dview||~handles.showim)),sizeim(1)+1000000*(dview||~handles.showim)),...
             min(max(yo+roi(3)-1+Uyc*handles.ondefimage*(handles.wfac==1)+handles.wfac*handles.ondefimage*Uxyz(:,2+decu),1-1000000*(dview||~handles.showim)),sizeim(2)+1000000*(dview||~handles.showim)),...
@@ -3628,7 +3641,7 @@ switch handles.fbasis
                                             urbt=handles.wfac*(Urbt(Step==iim))*handles.ondefimage;
                                             if handles.rmrbm
                                                 if ~(handles.wfac==1)||~(handles.showim)
-                                                urbt=handles.wfac*(Urbt(Step==iim)-(Uxoo+1i*Uyoo));
+                                                    urbt=handles.wfac*(Urbt(Step==iim)-(Uxoo+1i*Uyoo));
                                                 end
                                             end
                                             gzt=plot(xytips(Step==iim)+urbt,'rx','LineWidth',2);
@@ -5058,9 +5071,15 @@ if handles.preview
             set(fgage,'NumberTitle','off');
             box('on');
             hold('all');
+            if numel(El)==1
+            plot(El,'x','DisplayName','\epsilon_{l}','Parent',axes1,'LineWidth',2);
+            plot(Et,'x','DisplayName','\epsilon_{t}','Parent',axes1,'LineWidth',2);
+            plot(Es,'x','DisplayName','\tau','Parent',axes1,'LineWidth',2);
+            else
             plot(El,'DisplayName','\epsilon_{l}','Parent',axes1,'LineWidth',2);
             plot(Et,'DisplayName','\epsilon_{t}','Parent',axes1,'LineWidth',2);
             plot(Es,'DisplayName','\tau','Parent',axes1,'LineWidth',2);
+            end
             ylabel('Strain []','FontSize',20,'FontName','Times');
             xlabel('Step','FontSize',20,'FontName','Times');
             leg=legend(axes1,'show','Location','NorthWest');
@@ -5313,12 +5332,14 @@ if handles.preview
             case 2
                 if iim
                     %                    E=interpMesh(handles.mvisu,[handles.evisu.xx(:,iim),handles.evisu.yx(:,iim),handles.evisu.xy(:,iim),handles.evisu.yy(:,iim)],coords,1);
-E=griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xx,coords.xi,coords.yi,'nearest');
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yx,coords.xi,coords.yi,'nearest')];
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xy,coords.xi,coords.yi,'nearest')];
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coords.yi,'nearest')];
-
-%                    E=interpMesh(handles.mvisu,[handles.evisu.xx,handles.evisu.yx,handles.evisu.xy,handles.evisu.yy],coords,1);
+                    if handles.sonelt
+                        E=griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xx,coords.xi,coords.yi,'nearest');
+                        E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yx,coords.xi,coords.yi,'nearest')];
+                        E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xy,coords.xi,coords.yi,'nearest')];
+                        E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coords.yi,'nearest')];
+                    else
+                        E=interpMesh(handles.mvisu,[handles.evisu.xx,handles.evisu.yx,handles.evisu.xy,handles.evisu.yy],coords,1);
+                    end
                 else
                     E=zeros(length(s),4);
                 end
@@ -5397,12 +5418,14 @@ E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coord
                     for iim=1:handles.animation.nbstep
                         handles.animation.iim=iim;
                         handles=ComputeStrain(handles);
- %                       E=interpMesh(handles.mvisu,[handles.evisu.xx,handles.evisu.yx,handles.evisu.xy,handles.evisu.yy],coords,1);
- E=griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xx,coords.xi,coords.yi,'nearest');
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yx,coords.xi,coords.yi,'nearest')];
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xy,coords.xi,coords.yi,'nearest')];
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coords.yi,'nearest')];
-                       
+                        if handles.sonelt
+                            E=griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xx,coords.xi,coords.yi,'nearest');
+                            E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yx,coords.xi,coords.yi,'nearest')];
+                            E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xy,coords.xi,coords.yi,'nearest')];
+                            E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coords.yi,'nearest')];
+                        else
+                            E=interpMesh(handles.mvisu,[handles.evisu.xx,handles.evisu.yx,handles.evisu.xy,handles.evisu.yy],coords,1);
+                        end
                         Exx(:,iim)=E(:,1);
                         Eyy(:,iim)=E(:,4);
                         Exy(:,iim)=0.5*(E(:,2)+E(:,3));
@@ -5439,11 +5462,11 @@ E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coord
                         fseek(fide,(iim-1+handles.stereo*(iim+1))*prod(handles.mvisu.Nelems)+2,'bof');
                         Eri=fread(fide,prod(handles.mvisu.Nelems));
                         fclose(fide);
-  %                      Eri=handles.eton*Eri;
+                        %                      Eri=handles.eton*Eri;
                         Eri=100*Eri/dynamic;
-  %                      Er=interpMesh(handles.mvisu,Eri,coords,1);
-  Er=griddata(handles.evisu.xg,handles.evisu.yg,Eri,coords.xi,coords.yi,'nearest');
-                       
+                        %                      Er=interpMesh(handles.mvisu,Eri,coords,1);
+                        Er=griddata(handles.evisu.xg,handles.evisu.yg,Eri,coords.xi,coords.yi,'nearest');
+                        
                     else
                         sizeim=[roi(2)-roi(1),roi(4)-roi(3)]+1;
                         fseek(fide,(iim-1+handles.stereo*(iim+1))*prod(sizeim)+2,'bof');
@@ -5489,11 +5512,11 @@ E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coord
                     for iim=1:size(Er,2)
                         if erroronelt
                             Eri=fread(fide,prod(handles.mvisu.Nelems));
-%                            Eri=handles.eton*Eri;
+                            %                            Eri=handles.eton*Eri;
                             Eri=100*Eri/dynamic;
                             Er(:,iim)=griddata(handles.evisu.xg,handles.evisu.yg,Eri,coords.xi,coords.yi,'nearest');
-  
-                           % Er(:,iim)=interpMesh(handles.mvisu,Eri,coords,1);
+                            
+                            % Er(:,iim)=interpMesh(handles.mvisu,Eri,coords,1);
                             
                         else
                             Eri=fread(fide,prod(sizeim));
@@ -5659,13 +5682,14 @@ E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coord
                     end
                     
                     Uz=interpMesh(handles.mvisu,U,coords,1);
-                    Exy=griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xx,coords.xi,coords.yi,'nearest');
-Exy=[Exy,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yx,coords.xi,coords.yi,'nearest')];
-Exy=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xy,coords.xi,coords.yi,'nearest')];
-Exy=[Exy,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coords.yi,'nearest')];
-
-                  %  Exy=interpMesh(handles.mvisu,[handles.evisu.xx,handles.evisu.yx,handles.evisu.xy,handles.evisu.yy],coords,1);
-                    
+                    if handles.sonelt
+                        Exy=griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xx,coords.xi,coords.yi,'nearest');
+                        Exy=[Exy,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yx,coords.xi,coords.yi,'nearest')];
+                        Exy=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xy,coords.xi,coords.yi,'nearest')];
+                        Exy=[Exy,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coords.yi,'nearest')];
+                    else
+                        Exy=interpMesh(handles.mvisu,[handles.evisu.xx,handles.evisu.yx,handles.evisu.xy,handles.evisu.yy],coords,1);
+                    end
                 else
                     Uxyz=zeros(length(s),3);
                     Exy=zeros(length(s),3);
@@ -5722,12 +5746,14 @@ Exy=[Exy,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,c
                     for iim=1:handles.animation.nbstep
                         handles.animation.iim=iim;
                         handles=ComputeStrain(handles);
-  %                      E=interpMesh(handles.mvisu,[handles.evisu.xx,handles.evisu.yx,handles.evisu.xy,handles.evisu.yy],coords,1);
-  E=griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xx,coords.xi,coords.yi,'nearest');
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yx,coords.xi,coords.yi,'nearest')];
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xy,coords.xi,coords.yi,'nearest')];
-E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coords.yi,'nearest')];
-                       
+                        if handles.sonelt
+                            E=griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xx,coords.xi,coords.yi,'nearest');
+                            E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yx,coords.xi,coords.yi,'nearest')];
+                            E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.xy,coords.xi,coords.yi,'nearest')];
+                            E=[E,griddata(handles.evisu.xg,handles.evisu.yg,handles.evisu.yy,coords.xi,coords.yi,'nearest')];
+                        else
+                            E=interpMesh(handles.mvisu,[handles.evisu.xx,handles.evisu.yx,handles.evisu.xy,handles.evisu.yy],coords,1);
+                        end
                         Exx(:,iim)=E(:,1);
                         Eyy(:,iim)=E(:,4);
                         Exy(:,iim)=0.5*(E(:,2)+E(:,3));
@@ -6714,7 +6740,7 @@ else
                 for iz=1:size(handles.fem_model.zone,2)
                     if handles.fem_model.zone{4,iz}==5
                         handles.fem_model.zone{7,iz}=min(h,handles.fem_model.zone{7,iz});
-                        handles.fem_model.zone{6,iz}=min(h,real(handles.fem_model.zone{7,iz}))+1i;
+                        handles.fem_model.zone{6,iz}=min(h,real(handles.fem_model.zone{6,iz}))+1i;
                     end
                 end
                 handles=remesh(handles);
@@ -7119,8 +7145,8 @@ function cmenu_animation_savescreenshot_Callback(hObject, eventdata, handles)
 [file,pp,filterindex]=uiputfile({'*.png','Image file (*.png)'},'Save screenshot...');
 if filterindex>0
     file=fullfile(pp,file);
-im = getframe(handles.axes1);
-imwrite(im.cdata,file);
+    im = getframe(handles.axes1);
+    imwrite(im.cdata,file);
 end
 
 
@@ -7367,8 +7393,8 @@ if handles.preview
             ylabel('Curvature [1/m]','FontSize',20,'FontName','Times');
             xlabel('Step','FontSize',20,'FontName','Times');
         end
-            xlim([0,(numel(curv)+1)])
-            
+        xlim([0,(numel(curv)+1)])
+        
         load(handles.param.result_file,'-mat','strain')
         TT=-1:0.01:1;
         id=3;
@@ -7460,7 +7486,7 @@ if handles.preview
         if handles.beam_model.exx
             load(handles.param.result_file,'-mat','naxis')
             
-            id=3;
+            id=4;
             fbeam(id)=figure(id);
             delete(gca)
             
@@ -8634,18 +8660,18 @@ if handles.preview
                 xlabel('Step','FontSize',20,'FontName','Times');
             end
             
-              fgage=figure(4000+id);
-                delete(gca)
-                axes1 = axes('Parent',fgage,'LineWidth',2,'FontSize',16,...
-                    'FontName','Times');
-                set(fgage,'Name',sprintf('Crack length v.s. KI Crack #%d',id));
-                set(fgage,'NumberTitle','off');
-                box('on');
-                hold('all');
-                plot(da,K1,'DisplayName','a','Parent',axes1,'LineWidth',2);
-                xlabel('Crack length [m]','FontSize',20,'FontName','Times');
-             ylabel('SIF','FontSize',20,'FontName','Times');
-    
+            fgage=figure(4000+id);
+            delete(gca)
+            axes1 = axes('Parent',fgage,'LineWidth',2,'FontSize',16,...
+                'FontName','Times');
+            set(fgage,'Name',sprintf('Crack length v.s. KI Crack #%d',id));
+            set(fgage,'NumberTitle','off');
+            box('on');
+            hold('all');
+            plot(da,K1,'DisplayName','a','Parent',axes1,'LineWidth',2);
+            xlabel('Crack length [m]','FontSize',20,'FontName','Times');
+            ylabel('SIF','FontSize',20,'FontName','Times');
+            
             
             
             

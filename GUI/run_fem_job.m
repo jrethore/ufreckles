@@ -1,6 +1,6 @@
-function run_fem_job(param,model,Up)
-nmod=0;
+function run_fem_job(param,model,Up,nmod)
 if nargin<3,Up=[];end
+if nargin<3,nmod=0;end
 clear functions
 pshift=0;
 if isfield(param,'deformed_image')
@@ -37,11 +37,11 @@ load(fullfile('TMP','sample0_0.mat'),'sizeim')
 %     LoadParameters(param);
 %     end
 % end
-load(fullfile('TMP','0_mesh_0.mat'),'selected','Nnodes')
+load(fullfile('TMP',sprintf('%d_mesh_%d',nmod,1-1)),'selected','Nnodes')
 if isfield(model,'mesh_type')
     if model.mesh_type==1
         rflag=true;
-        save(fullfile('TMP','0_mesh_0.mat'),'rflag','-append')
+        save(fullfile('TMP',sprintf('%d_mesh_%d',nmod,1-1)),'rflag','-append')
     end
 end
 extract=0;
@@ -62,7 +62,7 @@ tips=zeros(size(model.zone,2),2);
 cracks=[];
 inds=[];
 if extract
-    load(fullfile('TMP','0_mesh_0.mat'),'xo','yo','conn','elt')
+    load(fullfile('TMP',sprintf('%d_mesh_%d',nmod,1-1)),'xo','yo','conn','elt')
     if param.detect
         modes=1:2;
         harms=-3:7;
@@ -224,13 +224,13 @@ if extract
         Nnodes=[length(xo),1,1];
         Nelems=[length(elt),1,1];
         conn=[conn,zeros(length(elt),1)];
-        save(fullfile('TMP','0_mesh_0.mat'),'xo','yo','conn','elt','Nnodes','Nelems','-append')
+        save(fullfile('TMP',sprintf('%d_mesh_%d',nmod,1-1)),'xo','yo','conn','elt','Nnodes','Nelems','-append')
     end
 end
 % param.regularization_type='none';
 % param0.regularization_parameter=64;
 % LoadParameters(param)
-save(fullfile('TMP','0_mesh_0.mat'),'selected','-append')
+save(fullfile('TMP',sprintf('%d_mesh_%d',nmod,1-1)),'selected','-append')
 %%
 U1=[];Ks=[];
 if ~isempty(Up),nscale=1;end
@@ -369,11 +369,11 @@ end
 %%
 filreso=strrep(filres,'.res','');
 U=U1;
-copyfile(fullfile('TMP','0_error_0.mat'), [filreso,'-error.res']);
+copyfile(fullfile('TMP',sprintf('%d_error_%d.mat',nmod,1-1)), [filreso,'-error.res']);
 load(fullfile('TMP',sprintf('%d_params',nmod)),'param');
 model=param;
 load(fullfile('TMP','params'),'param');
-load(fullfile('TMP','0_mesh_0'),'Nnodes','Nelems','xo','yo','conn','elt','ng','rflag','rint');
+load(fullfile('TMP',sprintf('%d_mesh_%d',nmod,1-1)),'Nnodes','Nelems','xo','yo','conn','elt','ng','rflag','rint');
 try
     tips(~(cell2mat(model.zone(4,:))==5),:)=[];
     model.zone(:,~(cell2mat(model.zone(4,:))==5))=[];

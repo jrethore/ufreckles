@@ -124,6 +124,10 @@ if ~strcmp(reg_type,'none')&&~strcmp(reg_type,'median')
     if isfield(param,'enrichment')&&(iscale==1)
         V=[V;zeros(3*numel(face_nodes),1)];
     end
+        hh=min(sqrt(diff(xo(conn(:,1:2)),[],2).^+diff(yo(conn(:,1:2)),[],2).^2+diff(zo(conn(:,1:2)),[],2).^2));
+    if param0.regularization_parameter>3*hh
+        mfilter=0;
+    end
 end
 fid=fopen(fullfile('TMP',sprintf('%d_error_%d.mat',nmod,iscale-1)),'w');
 if dynamic>255

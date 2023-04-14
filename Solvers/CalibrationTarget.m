@@ -244,8 +244,8 @@ end
 d=d/(2*prod(ngrid)*nim);
 %%
 f_corr=lgrid/d;
-f_corr=1;
-
+%f_corr=1;
+%f_corr
 C10=T(5:7,1)*f_corr;
 R10=reshape(T(8:16,1),3,3)*f_corr;
 R01=inv(R10);

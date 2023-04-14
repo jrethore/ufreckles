@@ -153,8 +153,11 @@ if ~strcmp(reg_type,'none')
         
     end
     ki=1/lc;
-    V=repmat(cos(2*pi*(xo)*ki).*cos(2*pi*(yo)*ki),2,1);
+    V=repmat(cos(2*pi*(xo)*ki).*sin(2*pi*(yo)*ki),2,1);
     hh=min(abs(diff(xo(conn(:,1:2)),[],2)+1i*diff(yo(conn(:,1:2)),[],2)));
+    if isempty(hh)
+        hh=mean(param.mesh_size);
+    end
     if param0.regularization_parameter>3*hh
         mfilter=0;
     end
@@ -514,12 +517,14 @@ fclose(fid);
                 ymin=max(floor(min(ypix))-2,1);ymax=min(ceil(max(ypix))+2,size(im1,2));
                 im1el=double(im1(xmin:xmax,ymin:ymax));
                 
-                
-                
-                if iscale==1
-                    im1e=mexInterpSpline(xpix-xmin+1,ypix-ymin+1,im1el);
+                if numel(im1el)==0
+                    im1e=-ones(size(im0e));
                 else
-                    im1e=mexInterpLinear(xpix-xmin+1,ypix-ymin+1,im1el);
+                    if iscale==1
+                        im1e=mexInterpSpline(xpix-xmin+1,ypix-ymin+1,im1el);
+                    else
+                        im1e=mexInterpLinear(xpix-xmin+1,ypix-ymin+1,im1el);
+                    end
                 end
                 %                 if iscale==1
                 %                     im1e=mexInterpSpline(xpix(:)+(N*Un)/pscale+roip(1)-1,ypix(:)+(N*Vn)/pscale+roip(3)-1,im1);
