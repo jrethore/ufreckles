@@ -127,7 +127,7 @@ if ~isempty(fem_model.zone)
                         end
                         dx=dx*h;
                         iter=0;
-                        while abs(seg)>0.5*dx%&&iter<1000
+                        while abs(seg)>0.5*dx&&iter<100
                             xyo=[xyo;xyo(end)+dx*seg/abs(seg)];
                             seg=xyp(ip+1)-xyo(end);
                             lvli=max(0,(abs(xyo(end)-xyp(1))-rc));

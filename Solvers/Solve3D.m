@@ -124,10 +124,6 @@ if ~strcmp(reg_type,'none')&&~strcmp(reg_type,'median')
     if isfield(param,'enrichment')&&(iscale==1)
         V=[V;zeros(3*numel(face_nodes),1)];
     end
-        hh=min(sqrt(diff(xo(conn(:,1:2)),[],2).^2+diff(yo(conn(:,1:2)),[],2).^2+diff(zo(conn(:,1:2)),[],2).^2));
-    if param0.regularization_parameter>5*hh
-        mfilter=0;
-    end
 end
 fid=fopen(fullfile('TMP',sprintf('%d_error_%d.mat',nmod,iscale-1)),'w');
 if dynamic>255
@@ -365,27 +361,16 @@ fclose(fid);
             
         end
         if ng>0
-            if any(elt==4)
-                [xgt,ygt,zgt,wgt]=GetGaussPointsTetrahedron(ng,ns);
-                Nt=[1-xgt-ygt-zgt,xgt,ygt,zgt];
-                
-                Nt_r=[-1+0*xgt,1+0*xgt,0*ygt,0*zgt];
-                Nt_s=[-1+0*xgt,0*xgt,1+0*ygt,0*zgt];
-                Nt_t=[-1+0*xgt,0*xgt,0*ygt,1+0*zgt];
-                %         Nt_r=Nt_r(:,[3,4,1,2]);
-                %         Nt_s=Nt_s(:,[3,4,1,2]);
-                %         Nt_t=Nt_t(:,[3,4,1,2]);
-            end
             if any(elt==6)
-                [xgw,ygw,zgw,wgw]=GetGaussPointsWedge(ng,ns);
-                Nw=[0.5*(1-xgw-ygw).*(1-zgw),0.5*(xgw).*(1-zgw),0.5*(ygw).*(1-zgw),...
-                    0.5*(1-xgw-ygw).*(1+zgw),0.5*(xgw).*(1+zgw),0.5*(ygw).*(1+zgw)];
-                Nw_r=[-0.5*(1-zgw),0.5*(1-zgw),(0*ygw),...
-                    -0.5*(1+zgw),0.5*(1+zgw),(0*ygw)];
-                Nw_s=[-0.5*(1-zgw),(0*xgw),0.5*(1-zgw),...
-                    -0.5*(1-zgw),(0*xgw),0.5*(1-zgw)];
-                Nw_t=[-0.5*(1-xgw-ygw),-0.5*xgw,-0.5*ygw,...
-                    0.5*(1-xgw-ygw),0.5*xgw,0.5*ygw];
+                [xgt,ygt,zgt,wgt]=GetGaussPointsWedge(ng,ns);
+                Nt=[0.5*(1-xgt-ygt).*(1-zgt),0.5*(xgt).*(1-zgt),0.5*(ygt).*(1-zgt),...
+                    0.5*(1-xgt-ygt).*(1+zgt),0.5*(xgt).*(1+zgt),0.5*(ygt).*(1+zgt)];
+                Nt_r=[-0.5*(1-zgt),0.5*(1-zgt),(0*ygt),...
+                    -0.5*(1+zgt),0.5*(1+zgt),(0*ygt)];
+                Nt_s=[-0.5*(1-zgt),(0*xgt),0.5*(1-zgt),...
+                    -0.5*(1-zgt),(0*xgt),0.5*(1-zgt)];
+                Nt_t=[-0.5*(1-xgt-ygt),-0.5*xgt,-0.5*ygt,...
+                    0.5*(1-xgt-ygt),0.5*xgt,0.5*ygt];
             end
             if any(elt==8)
                 [xgq,ygq,zgq,wgq]=GetGaussPointsHexaedron(ng,ns);
@@ -479,12 +464,9 @@ fclose(fid);
                     im0e=im0e(1:pstep:end,1:pstep:end,1:pstep:end);
                 end
             else
-                if elt(i1)==4
+                if elt(i1)==6
                     N=Nt;wg=wgt;
                     N_r=Nt_r;N_s=Nt_s;N_t=Nt_t;
-                elseif elt(i1)==6
-                    N=Nw;wg=wgw;
-                    N_r=Nw_r;N_s=Nw_s;N_t=Nw_t;
                 elseif elt(i1)==8
                     N=Nq;wg=wgq;
                     N_r=Nq_r;N_s=Nq_s;N_t=Nq_t;
@@ -535,7 +517,6 @@ fclose(fid);
                 sc=max(1,std0)/max(1,std1);
                 im1e=sc*im1e;
             end
-
             im1e=im0e(:)-im1e(:);
             wg=diag(sparse(wg(:)));
             indo=[inods,3*Nn+inde+0*nenr,inods+Nn,3*Nn+inde+1*nenr,inods+2*Nn,3*Nn+inde+2*nenr];

@@ -43,10 +43,10 @@ for iz=1:size(modelo.zone,2)
             xyp=zone{2};
             xyp=xyp*[1;1i];
             roi=round([min(real(xyp)),max(real(xyp)),min(imag(xyp)),max(imag(xyp))]);
-            try
-                model.starting_point=zone{10};
+            try 
+            model.starting_point=zone{10};
             catch
-                model.starting_point=[real(xyp(1)),imag(xyp(1))];
+            model.starting_point=[real(xyp(1)),imag(xyp(1))];
             end
             mx=1;
             my=1;
@@ -70,7 +70,7 @@ for iz=1:size(modelo.zone,2)
             xyp=zone{2};
             xyp=xyp*[1;1i];
             Zi=Xi+1i*Yi-xyp(1);
-            seg=diff(xyp([1;numel(xyp)]));
+            seg=diff(xyp(1+(0:1)));
             n=(-1i*seg)/abs(seg);
             t=(seg)/abs(seg);
             lso=(real((Zi)'*n))';
@@ -80,7 +80,6 @@ for iz=1:size(modelo.zone,2)
             roi=round([min(real(xyp)),max(real(xyp)),min(imag(xyp)),max(imag(xyp))]);
             mx=(abs(angle(n))<pi/4)||(abs(angle(n))>3*pi/4);
             my=(abs(angle(n))>pi/4)&&(abs(angle(n))<3*pi/4);
-            
     end
     if zone{4}>1
         if zone{1}<0
@@ -123,57 +122,6 @@ for iz=1:size(modelo.zone,2)
     if zone{4}==1
         InitializeVICContour(nmod,1,50,0);
     else
-        if zone{4}==4&&size(xyp,1)>2
-            
-            %pour Rana
-            si=cumsum(abs(diff(xyp)));
-            si=[0;si(:)];
-            
-            ls1i=linspace(0,max(si(:)),1000);
-            if 0
-            xcoefs=polyfit(si,real(xyp),3);
-            ycoefs=polyfit(si,imag(xyp),3);
-            xi=polyval(xcoefs,ls1i);
-            yi=polyval(ycoefs,ls1i);
-            dxcoefs=(numel(xcoefs):-1:1).*xcoefs;
-            dxcoefs=dxcoefs(1:end-1);
-            dycoefs=(numel(ycoefs):-1:1).*ycoefs;
-            dycoefs=dycoefs(1:end-1);
-            dxi=polyval(dxcoefs,ls1i);
-            dyi=polyval(dycoefs,ls1i);
-            else
-                xi=interp1(si,real(xyp),ls1i,'spline');
-                 yi=interp1(si,imag(xyp),ls1i,'spline');
-                dxi=gradient(xi);
-                dyi=gradient(yi);
-            end
-            
-            
-            ni=(-1i*(dxi+1i*dyi));
-            ni=ni(:)./abs(ni(:));
-            
-            xyon=xi(:)+1i*yi(:);
-            figure
-            plot(xyon)
-            hold on
-            plot(xyp)
-            ini=inpolygon(real(xyon),imag(xyon),roi([1,2,2,1,1]),roi([3,3,4,4,3]));
-            xyon=xyon(ini);
-            ni=-ni(ini);
-            [lson,ls1n,nmesh]=ComputeLevelSetFromPoints(nmod,1,real(xyon(:))-roi(1)+1,imag(xyon(:))-roi(3)+1,real(ni(:)),imag(ni(:)),0);
-            lson(~nmesh)=100000;
-            figure 
-            imagesc(lson)
-             lso(roi(1):roi(2),roi(3):roi(4))=lson;
-            ls1(roi(1):roi(2),roi(3):roi(4))=ls1n;
-            nxi=FDgradient(lson,1);
-            nyi=FDgradient(lson,2);
-            nx(roi(1):roi(2),roi(3):roi(4))=nxi;
-            ny(roi(1):roi(2),roi(3):roi(4))=nyi;
-            
-            save(filim,'lso','ls1','nx','ny','-v7.3');
-            
-        end
         VirtualImage(nmod);
     end
     U1=[];

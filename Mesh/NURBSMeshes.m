@@ -83,12 +83,12 @@ for iscale=1:nscale
             
             [Py,Px]=meshgrid(Py,Px);
             if degree(1)>1
-                for ir=1:degree(1)-1
+                for ir=1:degree(1)
                     xo=sort([xo,0.5*diff(xo)+xo(1:length(xo)-1)]);
                 end
             end
             if degree(2)>1
-                for ir=1:degree(2)-1
+                for ir=1:degree(2)
                     yo=sort([yo,0.5*diff(yo)+yo(1:length(yo)-1)]);
                 end
             end

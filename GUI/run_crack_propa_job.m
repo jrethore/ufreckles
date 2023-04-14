@@ -20,7 +20,7 @@ xfem=model.phantom_nodes;
 dao=param.da;
 modes=[1,2];
 if xfem
-    ind=1:4;
+    ind=1;
 else
     ind=0:7;
 end
@@ -81,11 +81,11 @@ while 1
             for it=1:2
                 if (tipso(ic,it)>=1)&&(tips(ic,it)>=1)
                     if xfem
-                        K1=sqrt(pix2m)*Ks(1+2*(cracks(ic)-1)+(it-1),1);
-                        K2=sqrt(pix2m)*Ks(1+2*(cracks(ic)-1)+(it-1),2);
+                        K1=sqrt(pix2m)*Ks(found+2*(cracks(ic)-1)+(it-1),1);
+                        K2=sqrt(pix2m)*Ks(found+2*(cracks(ic)-1)+(it-1),2);
                     else
                         K1=scalamp(found)*Ks(found+(tips(ic,it)-1)*nw);
-                        K2=scalamp(found)*Ks(found+length(ind)+(tips(ic,it)-1)*nw);
+                        K2=scalamp(found)*Ks(found+length(ind)+(tips(ic,it)-1)*nw,:);
                     end
                     [K1eq,Oc]=MaxHoopStressCriterion(K1,K2);
                     lf(ic,it)=KIc/K1eq;
@@ -113,13 +113,13 @@ while 1
             for it=1:2
                 if (tipso(ic,it)>=1)&&(tips(ic,it)>=1)
                     if xfem
-                        Ksi((1:nw)+(tipso(ic,it)-1)*nw)=Ks(1+2*(cracks(ic)-1)+(it-1),1:nw)';
-                        K1=sqrt(pix2m)*Ks(1+2*(cracks(ic)-1)+(it-1),1);
-                        K2=sqrt(pix2m)*Ks(1+2*(cracks(ic)-1)+(it-1),2);
+                        Ksi((1:nw)+(tipso(ic,it)-1)*nw)=Ks(found+2*(cracks(ic)-1)+(it-1),1:2)';
+                        K1=sqrt(pix2m)*Ks(found+2*(cracks(ic)-1)+(it-1),1);
+                        K2=sqrt(pix2m)*Ks(found+2*(cracks(ic)-1)+(it-1),2);
                     else
                         Ksi((1:nw)+(tipso(ic,it)-1)*nw)=Ks((1:nw)+(tips(ic,it)-1)*nw);
                         K1=scalamp(found)*Ks(found+(tips(ic,it)-1)*nw);
-                        K2=scalamp(found)*Ks(found+length(ind)+(tips(ic,it)-1)*nw);
+                        K2=scalamp(found)*Ks(found+length(ind)+(tips(ic,it)-1)*nw,:);
                     end
                     [K1eq,Oc]=MaxHoopStressCriterion(K1,K2);
 %                    Oc=0

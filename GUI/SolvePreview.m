@@ -6,9 +6,8 @@ load(fullfile('TMP','params'),'param');
 param0=param;
 restart=0;
 onflight=1;
-disc=0;
 preview=1;
-pgd=1;
+pgd=0;
 if onflight
     global phiy phix Xi Yi phidf
 end
@@ -102,7 +101,7 @@ end
 
 
 
-if restart||ijm<4
+if restart||ijm<3
     [Un,Vn]=rbt(im0,im1(roip(1):roip(2),roip(3):roip(4)));
     switch param.basis
         case 'fem'
@@ -129,7 +128,7 @@ else
     Ui=U(:,ijm-1,iz)+DU;
     
     if pgd
-        LL=U(:,max(2,ijm-4):(ijm-1),iz);
+        LL=U(:,max(1,ijm-4):(ijm-1),iz);
         dL=Inf;
         ii=1;
         LMML=LL'*(Mo)*LL;

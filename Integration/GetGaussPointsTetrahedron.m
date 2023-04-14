@@ -1,8 +1,7 @@
 function [xg,yg,zg,wg]=GetGaussPointsTetrahedron(nb_gauss_point,nb_sub_cell,xn,yn,zn,xpix,ypix,zpix)
-if nargin==1, nb_sub_cell=1;end
-check=0;
+check=1;
 switch nb_gauss_point
-    case 1
+    case {1}
         xg=[1/4];
         yg=[1/4];
         zg=[1/4];
@@ -168,25 +167,5 @@ switch nb_gauss_point
             wg=tmp;
         end
         
-end
-if prod(nb_sub_cell)>1
-    dx=1/nb_sub_cell(1);
-    dy=1/nb_sub_cell(2);
-    dz=1/nb_sub_cell(3);
-    xg=dx/2:dx:1;
-    yg=dy/2:dy:1;
-    zg=dz/2:dz:1;
-    dw=1/prod(nb_sub_cell);
-    [yg,xg,zg]=meshgrid(yg,xg,zg);
-    keep=(1-xg(:)-yg(:)-zg(:))>0;
-    xg=xg(keep);
-    yg=yg(keep);
-    zg=zg(keep);
-    wg=ones(numel(xg),1)*dw;
-    if check
-        figure
-        plot3(xg,yg,zg,'rx')
-    end
-    
 end
 end

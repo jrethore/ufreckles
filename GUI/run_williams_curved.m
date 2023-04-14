@@ -7,10 +7,10 @@ mask_radius=cparam.mask_radius;% taille de la zone a exclure au niveau de la poi
 mask_width=cparam.mask_width;% taille de la zone a exclure le long des faces de la fissure
 km_indices=-3:7;
 modes=[1,2];
-mu=cparam.mu;% module de young
-kappa=cparam.kappa;% coefficient de poisson
-%mu=0.5*E/(1+nu);
-%kappa=(3-4*nu);% kolossov constant en deformation plane (echantillon massif)
+E=cparam.young;% module de young
+nu=cparam.nu;% coefficient de poisson
+mu=0.5*E/(1+nu);
+kappa=(3-4*nu);% kolossov constant en deformation plane (echantillon massif)
 pix2m=cparam.pix2m;% correspondance pixel/metre
 maxiter=500;
 filk=sprintf('%s-crack-%02d-sif.res',strrep(filres,'.res',''),id);
@@ -117,60 +117,9 @@ for iim=size(U,2):-1:1
         
         
         
-        [crackc,~,~,~]=GetSignedDistanceToCrack(xyc,zo,0);
-        front=real((zo-zci)*conj(tt));
-        crack=real((zo-zci)*conj(nn));
-        
-%         figure
-%         plot(zo,'bx')
-%         hold on
-%         axis equal
-%         plot(zf,'k+')
-%         plot(zci,'ro')
-%         plot(xyc(:,1),xyc(:,2),'r-')
-%         quiver(real(zci), imag(zci), real(nn), imag(nn),100,'Color','k')
-%         quiver(real(zci), imag(zci), real(tt), imag(tt),100,'Color','r')
-%         
-%         figure
-%         scatter(real(zo),imag(zo),[],front)
-%         hold on
-%         axis equal
-%         plot(zf,'k+')
-%         plot(zci,'ro')
-%         plot(xyc(:,1),xyc(:,2),'r-')
-%         quiver(real(zci), imag(zci), real(nn), imag(nn),100,'Color','k')
-%         quiver(real(zci), imag(zci), real(tt), imag(tt),100,'Color','r')
-% 
-%                 figure
-%         scatter(real(zo),imag(zo),[],crack)
-%         hold on
-%         axis equal
-%         plot(zf,'k+')
-%         plot(zci,'ro')
-%         plot(xyc(:,1),xyc(:,2),'r-')
-%         quiver(real(zci), imag(zci), real(nn), imag(nn),100,'Color','k')
-%         quiver(real(zci), imag(zci), real(tt), imag(tt),100,'Color','r')
-% 
-%                 figure
-%         scatter(real(zo),imag(zo),[],crackc)
-%         hold on
-%         axis equal
-%         plot(zf,'k+')
-%         plot(zci,'ro')
-%         plot(xyc(:,1),xyc(:,2),'r-')
-%         quiver(real(zci), imag(zci), real(nn), imag(nn),100,'Color','k')
-%         quiver(real(zci), imag(zci), real(tt), imag(tt),100,'Color','r')
-%                 figure
-%         scatter(real(zo),imag(zo),[],sign(crackc.*crack))
-%         hold on
-%         axis equal
-%         plot(zf,'k+')
-%         plot(zci,'ro')
-%         plot(xyc(:,1),xyc(:,2),'r-')
-%         quiver(real(zci), imag(zci), real(nn), imag(nn),100,'Color','k')
-%         quiver(real(zci), imag(zci), real(tt), imag(tt),100,'Color','r')
-
-        
+        [crack,front,~,~]=GetSignedDistanceToCrack(xyc,zo,0);
+        %front=real((zo-zc).*conj(tt));
+        %crack=real((zo-zc).*conj(nn));
         %            front=front-0.5*decx;
         z=front+1i*crack;
         dist=max(abs(z),1);
@@ -188,19 +137,8 @@ for iim=size(U,2):-1:1
 %                      pause
 %                     close(hf1)
 %                     close(hf2)
-        mask=(~((dist>Rmax)|(dist<mask_radius)|((abs(crack)<mask_width)&(front<0))));
-        maskc=(~((dist>Rmax)|(dist<mask_radius)|((abs(crackc)<mask_width)&(front<0))));
-        mask=double(mask&maskc);
-%                  figure
-%         scatter(real(zo),imag(zo),[],double(mask))
-%         hold on
-%         axis equal
-%         plot(zf,'k+')
-%         plot(zci,'ro')
-%         plot(xyc(:,1),xyc(:,2),'r-')
-%         quiver(real(zci), imag(zci), real(nn), imag(nn),100,'Color','k')
-%         quiver(real(zci), imag(zci), real(tt), imag(tt),100,'Color','r')
-       
+        mask=double(~((dist>Rmax)|(dist<mask_radius)|((abs(crack)<mask_width)&(front<0))));
+        
         mask=diag(sparse(mask(:)));
         
         icon=0;

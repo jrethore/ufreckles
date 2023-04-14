@@ -325,8 +325,6 @@ switch model.basis
         curv=U(4,:)*dsdx*dsdx;
         strain=-TT'*U(4,:)*dsdx;
         rot=[];
-        axial=[];
-        shear=[];
         
         naxis=zeros(1,size(U,2));
         if model.exx
@@ -486,7 +484,6 @@ switch model.basis
         
         
         if beamtype
-            phixy=[dphit,-dphit,sparse(prod(sizeim),size(U,1)-2*Nny)];
             phit=[phit,sparse(prod(sizeim),Nny),sparse(prod(sizeim),size(U,1)-2*Nny)];
             dphit=[sparse(prod(sizeim),Nny),dphit,sparse(prod(sizeim),size(U,1)-2*Nny)];
             ddphit=[sparse(prod(sizeim),Nny),ddphit,sparse(prod(sizeim),size(U,1)-2*Nny)];
@@ -496,12 +493,11 @@ switch model.basis
             dphit=[dphit,sparse(prod(sizeim),size(U,1)-Nny)];
             ddphit=[ddphit,sparse(prod(sizeim),size(U,1)-Nny)];
             phixx=sparse(prod(sizeim),size(U,1));
-             phixy=sparse(prod(sizeim),size(U,1));
-       end
+        end
         fleche=phit*U;
         rot=dsdx*dphit*U;
         curv=dsdx*dsdx*ddphit*U;
-        shear=0.5*dsdx*phixy*U;
+        
         if model.exx
             p1=p-1;
             indp=zeros((p1+1)*Smesh,1);
@@ -530,10 +526,10 @@ switch model.basis
             indp((nel+1):end)=[];
             indn((nel+1):end)=[];
             dval((nel+1):end)=[];
-            phixx(:,(end-(Nny-1)):end)=sparse(indp,indn,dsdx*dval,prod(sizeim),Nny);
+            phixx=[phixx,sparse(indp,indn,dsdx*dval,prod(sizeim),Nny)];
         end
         naxis=0.5*(phixx*U)./curv*dtdx;
-        axial=phixx*U;
+        
         
         
         fid=fopen([filreso,'-deflection.csv'],'w');
@@ -839,7 +835,7 @@ Up=U;
 U=[phixs*Up;phiys*Up];
 Eax=phias*Up;
 Esh=phiss*Up;
-save(filres,'U','Up','s','Eax','Esh','axial','shear','fleche','curv','rot','naxis','Nnodes','Nelems','xo','yo','param','model','nmod','conn','elt','rint','ng','rflag','-v7.3');
+save(filres,'U','Up','s','Eax','Esh','fleche','curv','rot','naxis','Nnodes','Nelems','xo','yo','param','model','nmod','conn','elt','rint','ng','rflag','-v7.3');
 switch model.basis
     case 'beam'
         save(filres,'strain','-append');

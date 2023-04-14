@@ -42,11 +42,11 @@ for iscale=1:nscale
     else
         ng=ngi;ns=nsi;
     end
-    xo=(1:mesh_size(1):sizeim(1)-1)+1;
-    yo=(1:mesh_size(2):sizeim(2)-1)+1;
+    xo=(0:mesh_size(1):sizeim(1)-1)+1;
+    yo=(0:mesh_size(2):sizeim(2)-1)+1;
     
     if length(sizeim)==3
-        zo=(1:mesh_size(3):sizeim(3)-1)+1;
+        zo=(0:mesh_size(3):sizeim(3)-1)+1;
         if (length(xo)==1)
             mesh_size(1)=sizeim(1)-1;
             xo=round(0:mesh_size(1):sizeim(1)-1)+1;
@@ -72,15 +72,15 @@ for iscale=1:nscale
             elseif length(yo)==1
                 mesh_size(2)=sizeim(2)-1;
             end
-            xo=round(1:mesh_size(1):sizeim(1)-1)+1;
-            yo=round(1:mesh_size(2):sizeim(2)-1)+1;
+            xo=round(0:mesh_size(1):sizeim(1)-1)+1;
+            yo=round(0:mesh_size(2):sizeim(2)-1)+1;
             
         end
     end
-    if min(mesh_size)>2
+    
     xo=xo-floor(mean(xo)-sizeim(1)/2);
     yo=yo-floor(mean(yo)-sizeim(2)/2);
-    end
+    
     
     
     Smesh=[max(xo)-min(xo),max(yo)-min(yo)];

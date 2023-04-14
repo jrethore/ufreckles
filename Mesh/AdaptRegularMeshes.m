@@ -46,7 +46,7 @@ for iscale=2:nscale
     xo=xo(keep);
     yo=yo(keep);
     zo=zo(keep);
-    newids=zeros(1,prod(Nnodes)+1);
+    newids=zeros(prod(Nnodes)+1,1);
     newids(keep)=1:length(keep);
     conn(conn==0)=prod(Nnodes)+1;
     conn=newids(conn);

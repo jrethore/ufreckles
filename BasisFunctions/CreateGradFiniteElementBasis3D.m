@@ -61,9 +61,9 @@ if ng>0
         Nte_r=[-1+0*xgte,1+0*xgte,0*ygte,0*zgte];
         Nte_s=[-1+0*xgte,0*xgte,1+0*ygte,0*zgte];
         Nte_t=[-1+0*xgte,0*xgte,0*ygte,1+0*zgte];
-%         Nte_r=Nte_r(:,[3,4,1,2]);
-%         Nte_s=Nte_s(:,[3,4,1,2]);
-%         Nte_t=Nte_t(:,[3,4,1,2]);
+        Nte_r=Nte_r(:,[3,4,1,2]);
+        Nte_s=Nte_s(:,[3,4,1,2]);
+        Nte_t=Nte_t(:,[3,4,1,2]);
     end
     if any(elt==6)
         [xgt,ygt,zgt,wgt]=GetGaussPointsWedge(ngt/(2*prod(ns)),ns);

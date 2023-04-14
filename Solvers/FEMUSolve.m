@@ -15,7 +15,7 @@ if isfield(param0,'under_relaxation')
 else
     alpha=1;
 end
-load('TMP/0_mesh_0')
+
 P=Pini;
 res=Inf;
 ii=1;
@@ -25,13 +25,6 @@ Phist(:,1)=P;
 
 while ( res>conv && ii< maxiter)
         err=costfun(nmod,P);
-%         figure
-%         subplot(1,2,1)
-%         trimesh(conn,xo,yo,err((1:prod(Nnodes))))
-%         colorbar
-%         subplot(1,2,2)
-%         trimesh(conn,xo,yo,err(prod(Nnodes)+(1:prod(Nnodes))))
-%         colorbar
         if ii==1
             erro=err;
         end

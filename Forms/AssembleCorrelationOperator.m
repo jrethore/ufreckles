@@ -287,8 +287,10 @@ for ncam=1:ncams
             L=phii'*wdetJ*phii;
             b=phii'*wdetJ*vi;
             V=L\b;
+            
             a=(V'*M*V)/(V'*Ri*V);
             a=a*(2*lm/lc)^2;
+            
             R=R+a*Ri;
             
             %             val=(1*max(diag(M))-mean(diag(M)))/mean(diag(Ri));

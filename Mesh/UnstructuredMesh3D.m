@@ -47,21 +47,20 @@ if any(xo<1)||any(xo>sizeim(1))||any(yo<1)||any(yo>sizeim(2))||any(zo<1)||any(zo
     display('THE MESH IS SHRINKED INSIDE THE ROI')
     conng=conn;
     conng(conn==0)=numel(xo)+1;
-    xg=[xo;sizeim(1)/2];
+    xg=[xo;0];
     xg=xg(conng);
     keep=sum((xg<1)|(xg>sizeim(1)),2);
-    xg=[yo;sizeim(2)/2];
+    xg=[yo;0];
     xg=xg(conng);
     keep=keep+sum((xg<1)|(xg>sizeim(2)),2);
-    xg=[zo;sizeim(3)/2];
+    xg=[zo;0];
     xg=xg(conng);
     keep=keep+sum((xg<1)|(xg>sizeim(3)),2);
     conn(keep>0,:)=[];
     elt(keep>0,:)=[];
     
     [pind,~,j1]=unique(conn);
-    conn=reshape(j1,size(conn))-1;
-    pind=pind(2:end);
+    conn=reshape(j1,size(conn));
     xo=xo(pind);
     yo=yo(pind);
     zo=zo(pind);

@@ -80,15 +80,15 @@ elseif length(roi)==6
         im0=reshape(im0,sizeim);
         fclose(fid);
     else
-        [~, ~, extref] = fileparts(filref);
-        switch extref
-            case '.mat'
-                load(filref,'jm3');
-                im0=(jm3);
-                clear jm3
-            case {'.tif','.tiff'}
-                im0=readTIFFasRAW(filref);
-        end
+ [~, ~, extref] = fileparts(filref);
+ switch extref
+     case '.mat'
+         load(filref,'jm3');
+        im0=(jm3);
+        clear jm3
+     case {'.tif','.tiff'}
+          im0=readTIFFasRAW(filref);
+ end
         sizeim=size(im0);
         
     end

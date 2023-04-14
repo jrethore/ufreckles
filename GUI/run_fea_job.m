@@ -183,7 +183,7 @@ try
     cracks=find(cell2mat(model.zone(4,:))==5);
 catch
 end
-save(filres,'U','Fl','Ks','tips','cracks','Nnodes','Nelems','xo','yo','param','model','nmod','conn','elt','rint','ng','rflag','-v7.3');
+save(filres,'U','Ks','tips','cracks','Nnodes','Nelems','xo','yo','param','model','nmod','conn','elt','rint','ng','rflag','-v7.3');
 if fromdic
     ReferenceImage(nmod);
     param.iter_max=2;

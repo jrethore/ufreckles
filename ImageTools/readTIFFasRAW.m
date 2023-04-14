@@ -47,8 +47,5 @@ else
     disp TODO : be able to read that kind of file
     return
 end
-if (data(1).BitDepth == 16)&&(numel(shape==3))
-    b=b*((2^8-1)/(2^16-1));
-end
 
 image = reshape(b, shape);

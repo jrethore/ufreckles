@@ -27,7 +27,7 @@ jj=circshift(ii,[0,-1]);
 kk=circshift(ii,[0,-2]);
 tips=zeros(size(model.zone,2),2);
 cracks=[];
-ntip=0;
+    ntip=0;
 
 for iz=1:size(model.zone,2)
     zone=model.zone(:,iz);
@@ -38,7 +38,7 @@ for iz=1:size(model.zone,2)
             if (zone{8}>0)
                 extract=1;
                 tips(iz,1)=ntip+1;
-                ntip=ntip+1;
+                    ntip=ntip+1;
                 if  (zone{9}>0)
                     tips(iz,2)=ntip+1;
                     ntip=ntip+1;
@@ -47,13 +47,13 @@ for iz=1:size(model.zone,2)
             xyc=zone{2};
             hmax=2*mean(model.mesh_size);
             box=[floor(min(xyc(:,1))-hmax),ceil(max(xyc(:,1))+hmax),floor(min(xyc(:,2))-hmax),ceil(max(xyc(:,2))+hmax)];
-            %            htip=real(zone{7});
+%            htip=real(zone{7});
             ftip=0.5;
             xg=mean(xo(conn),2);
             yg=mean(yo(conn),2);
             inbox=find(inpolygon(xg,yg,box([1,2,2,1,1,]),box([3,3,4,4,3])));
-            seg=reshape(conn(inbox,[1,2,1,3,2,3])',2,3*size(inbox,1))';
-            seg=unique(sort(seg,2),'rows');
+        seg=reshape(conn(inbox,[1,2,1,3,2,3])',2,3*size(inbox,1))';
+        seg=unique(sort(seg,2),'rows');
             htip=min(abs(diff(xo(seg),[],2)+1i*diff(yo(seg),[],2)));
             [crack,front]=GetSignedDistanceToCrack(xyc,xg(inbox)+1i*yg(inbox));
             inbox=inbox(((abs(crack)<hmax)&(front<hmax)));
@@ -159,6 +159,8 @@ for iz=1:size(model.zone,2)
             %             hold on
             %             plot(xyc(:,1),xyc(:,2),'k')
             %             axis equal
+            xo=xo-param.roi(1)+1;
+            yo=yo-param.roi(3)+1;
             
             new_nodes=prod(Nnodes)+(1:length(face_nodes))';
             new_ids=(1:prod(Nnodes))';
@@ -176,48 +178,29 @@ for iz=1:size(model.zone,2)
             model.zone{10,iz}=face_elts';
             model.zone{11,iz}=[face_nodes',new_nodes];
             model.zone{12,iz}={nconn1,nconn2};
-                        xo=xo-param.roi(1)+1;
-            yo=yo-param.roi(3)+1;
-
     end
 end
 LoadParameters(model,nmod);
 save(fullfile('TMP','0_mesh_0.mat'),'xo','yo','Nnodes','-append')
-selected=[];
-load(strrep(param.result_file,'.res','.dat'),'-mat','selected')
-if isempty(selected)
-    fromdic=0;
-    
-    indi=[];Up=[];
-    Fo=zeros(2*prod(Nnodes),1);
-    for iz=1:size(model.zone,2)
-        zone=model.zone(:,iz);
-        switch zone{4}
-            case 6 % BCS
-                loads=zone{7};
-                nodes=zone{6};
-                for ii=1:2
-                    Fo(nodes+(ii-1)*prod(Nnodes))=loads(ii,2)/length(nodes);
-                    up=loads(ii,1);
-                    if ~isnan(up)
-                        indi=[indi;nodes+(ii-1)*prod(Nnodes)];
-                        Up(end+(1:length(nodes)))=up;
-                    end
+indi=[];Up=[];
+Fo=zeros(2*prod(Nnodes),1);
+for iz=1:size(model.zone,2)
+    zone=model.zone(:,iz);
+    switch zone{4}
+        case 6 % BCS
+            loads=zone{7};
+            nodes=zone{6};
+            for ii=1:2
+                Fo(nodes+(ii-1)*prod(Nnodes))=loads(ii,2)/length(nodes);
+                up=loads(ii,1);
+                if ~isnan(up)
+                    indi=[indi;nodes+(ii-1)*prod(Nnodes)];
+                    Up(end+(1:length(nodes)))=up;
                 end
-        end
+            end
     end
-else
-    fromdic=1;
-    load(strrep(param.result_file,'.res','.dat'),'-mat','U')
-    indi=find(~selected);
-    indio=[indi(:);indi(:)+size(U,1)/2];
-    indi=[indi(:);indi(:)+prod(Nnodes)];
-    Up=U(indio,1);
-    
-    Fo=zeros(2*prod(Nnodes),1);
-    clear U
-    
 end
+
 
 C=sparse(indi,1:length(indi),1,2*prod(Nnodes),length(indi));
 Up=Up(:);
@@ -374,7 +357,7 @@ end
 if areg>0
     Ks=[];
 else
-    [Ks]=SIF(nmod,model,U,xo+param.roi(1)-1,yo+param.roi(3)-1,conno(:,1:3));
+[Ks]=SIF(nmod,model,U,xo+param.roi(1)-1,yo+param.roi(3)-1,conno(:,1:3));
 end
 Ks=Ks;
 %%
@@ -422,7 +405,7 @@ try
     model.zone(:,~((cell2mat(model.zone(4,:))==5)|(cell2mat(model.zone(4,:))==6)))=[];
 catch
 end
-save(filres,'U','Fl','Ks','tips','cracks','Nnodes','Nelems','xo','yo','param','model','nmod','conn','elt','rint','ng','rflag','-v7.3');
+save(filres,'U','Ks','tips','cracks','Nnodes','Nelems','xo','yo','param','model','nmod','conn','elt','rint','ng','rflag','-v7.3');
 postproVTK([filres,''],0,0);
 
 end

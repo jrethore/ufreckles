@@ -27,11 +27,6 @@ end
     
     xon=xon+unx;
     yon=yon+uny;
-    
-minux=min(unx(:));
-maxux=max(unx(:));
-minuy=min(uny(:));
-maxuy=max(uny(:));
 
     M=phii'*phii;
     L=phii'*xon;

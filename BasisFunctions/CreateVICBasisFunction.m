@@ -25,8 +25,7 @@ switch sbasis
     case {'vic-nurbs'}
         load(fullfile('TMP',sprintf('sample0_%d',1-1)),'ls1');
         load(fullfile('TMP',sprintf('sample0_%d',iscale-1)),'sizeim','nband','on');
-%        mesh_file=fullfile('TMP',sprintf('%d_vicmesh_%d',nmod,iscale-1));
-        mesh_file=fullfile('TMP',sprintf('%d_vicmesh_%d',nmod,1-1))
+        mesh_file=fullfile('TMP',sprintf('%d_vicmesh_%d',nmod,iscale-1));
         type_nurbs=~strcmp(param.continuity,'c0');
         p=param.degree;
         %         if iscale==1
@@ -39,7 +38,7 @@ switch sbasis
             nx=-diag(sparse(nx(:)));
             ny=-diag(sparse(ny(:)));
 
-            [phi,dphi,ddphi]=CreateNURBSBasis0D(mesh_file,p,ls1,type_nurbs,param.closed,nband,sizeim);
+            [phi,dphi]=CreateNURBSBasis0D(mesh_file,p,ls1,type_nurbs,param.closed,nband,sizeim);
             ls1i=ls1(nband(on));
             [phii,dphii,ddphii]=CreateNURBSBasis0D(mesh_file,p,ls1i,type_nurbs,param.closed);
             % phi1=phi;
@@ -55,7 +54,7 @@ switch sbasis
             Yi=Yi(:);
 
             Nddl_tot=size(phi,2);
-            save(fullfile('TMP',sprintf('%d_phi_%d',nmod,iscale-1)),'phi','phii','dphii','ddphii','dphi','ddphi','sizeim','ls1i','Nddl_tot');
+            save(fullfile('TMP',sprintf('%d_phi_%d',nmod,iscale-1)),'phi','phii','dphii','ddphii','dphi','sizeim','ls1i','Nddl_tot');
             save(fullfile('TMP',sprintf('%d_phix_%d',nmod,iscale-1)),'phix','Xi','Yi','wdetJ','inde','sizeim','Nddl_tot');
             save(fullfile('TMP',sprintf('%d_phiy_%d',nmod,iscale-1)),'phiy','sizeim','Nddl_tot');
         else

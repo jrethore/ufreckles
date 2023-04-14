@@ -1,5 +1,5 @@
 function [U]=SolveVIC(Uini,iscale,nmod)
-check=1;
+check=0;
 ttic=cputime;
 load(fullfile('TMP',sprintf('sample0_%d',1-1)),'sizeim');
 sizeim0=sizeim;
