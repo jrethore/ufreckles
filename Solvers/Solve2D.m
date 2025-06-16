@@ -209,13 +209,14 @@ for ijm=1:nmax
                 if incremental
                     Ui=DU;
                 else
-                    Ui=U(:,ijm-1,iz)+DU;
                     if pgd
+                        Ui=U(:,ijm-1,iz);
+                        
                         display('Automatic prediction...');
                         L=U(:,max(1,ijm-4):(ijm-1),iz);
                         dL=Inf;
                         ii=1;
-                        while norm(dL)>0.001&&ii<10
+                        while norm(dL)>0.001&&ii<100
                             [merror,disc]=Assemble(false);
                             MM=L'*(M-R-P)*L;
                             FF=L'*Fc;
@@ -224,6 +225,9 @@ for ijm=1:nmax
                             ii=ii+1;
                         end
                         ii=1;
+                    else
+                        Ui=U(:,ijm-1,iz)+DU;
+                        
                     end
                 end
                 
@@ -232,7 +236,7 @@ for ijm=1:nmax
         end
         merrorp=Inf;
         while ( res>conv && ii< maxiter)
-             [merror,disc]=Assemble((ii==1)&&(ijm==1)&&(icamd==1)&&(maxiter>2));
+            [merror,disc]=Assemble((ii==1)&&(ijm==1)&&(icamd==1)&&(maxiter>2));
             if (ii==1)&&(ijm==1)&&(icamd==1)
                 switch reg_type
                     case 'tiko'
@@ -549,10 +553,10 @@ fclose(fid);
                     if inorm
                         if any(maske)
                             im1e=im1e-mean(im0e(:));
-                        sc=1;
+                            sc=1;
                         else
                             im1e=im1e-mean(im1e(:));
-                        sc=max(1,std(im0e(:)))/max(1,std(im1e(:)));
+                            sc=max(1,std(im0e(:)))/max(1,std(im1e(:)));
                         end
                         im0e=im0e-mean(im0e(:));
                         im1e=sc*im1e;

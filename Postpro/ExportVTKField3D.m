@@ -4,10 +4,11 @@ set.ascii=0;
 set.remark=' computed by UFreckles';
 nn=length(xo);
 ne=length(elt);
+foundb2=find(elt==2);
  foundt3=find(elt==6);
  foundt4=find(elt==4);
  foundq4=find(elt==8);
- foundt=[foundt3;foundt4;foundq4];
+ nb2=sum(elt==2);
 nt4=sum(elt==4);
 np6=sum(elt==6);
 nh8=sum(elt==8);
@@ -40,7 +41,14 @@ for iim=1:length(images)
     else
         fwrite(fwid, data,'float');
     end
- count = fprintf(fwid,'CELLS %u %u\n',nt4+np6+nh8,5*nt4+7*np6+9*nh8);
+ count = fprintf(fwid,'CELLS %u %u\n',nb2+nt4+np6+nh8,3*nb2+5*nt4+7*np6+9*nh8);
+    data=[repmat(2,1,length(foundb2));conn(foundb2,1:2)'-1];
+    
+    if set.ascii
+        fprintf(fwid, '%d %d %d\n', data);
+    else
+        fwrite(fwid, data,'uint');
+    end
 data=[repmat(4,1,length(foundt4));conn(foundt4,1:4)'-1];
 
 
@@ -69,7 +77,7 @@ end
 
 
       count = fprintf(fwid,'CELL_TYPES %u\n',ne);
-data=[repmat(10,1,nt4),repmat(13,1,np6),repmat(12,1,nh8)];
+data=[repmat(3,1,nb2),repmat(10,1,nt4),repmat(13,1,np6),repmat(12,1,nh8)];
 
 if set.ascii
    fprintf(fwid, '%d\n', data);

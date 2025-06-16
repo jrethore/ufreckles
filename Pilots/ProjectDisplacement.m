@@ -625,10 +625,15 @@ else
     load(fullfile('TMP',sprintf('%d_mesh_%d',nmod,iscale-1)),'xo','yo','Nnodes');
     load(fullfile('TMP',sprintf('%d_mask_%d',nmod,iscale-1)),'unmasked_nodes');
     
-    xo=min(xo,max(xg(:)));xo=max(xo,min(xg(:)));
-    yo=min(yo,max(yg(:)));yo=max(yo,min(yg(:)));
-    Uf= griddata(xg,yg,Ug,xo(:),yo(:));
-    Vf= griddata(xg,yg,Vg,xo(:),yo(:));
+    SINT=scatteredInterpolant(xg(:),yg(:),Ug(:),'linear','linear');
+    Uf=SINT(xo,yo);
+    SINT=scatteredInterpolant(xg(:),yg(:),Vg(:),'linear','linear');
+    Vf=SINT(xo,yo);
+    
+%     xo=min(xo,max(xg(:)));xo=max(xo,min(xg(:)));
+%     yo=min(yo,max(yg(:)));yo=max(yo,min(yg(:)));
+%     Uf= griddata(xg,yg,Ug,xo(:),yo(:));
+%     Vf= griddata(xg,yg,Vg,xo(:),yo(:));
     %     Uf=interp2(yg,xg,Ug,yo(:),xo(:),'linear');
     %     Vf=interp2(yg,xg,Vg,yo(:),xo(:),'linear');
     

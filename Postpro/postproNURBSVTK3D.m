@@ -1,9 +1,13 @@
-function postproNURBSVTK3D(filres,submean)
+function postproNURBSVTK3D(filreso,submean)
 if nargin<2,submean=0;end
 nmod=1;
-
+[pp,filres,ext]=fileparts(filreso);
+if isempty(ext)
+    filreso=[filreso,'.mat'];
+ext='.mat';
+end
 tic
-load([filres,'.mat'])
+load(filreso,'-mat')
 if ~exist('U','var')
     U=U1;
 end
@@ -56,13 +60,13 @@ foundt=[foundt3;foundq4];
 % end
 
 
-[dphidx,dphidy,dphidz]=CreateGradNURBSBasis3D(filres,degree,'nodes',1,'physical');
+[dphidx,dphidy,dphidz]=CreateGradNURBSBasis3D(filreso,degree,'nodes',1,'physical');
 if isfield(model1,'vtk_export')
-    [phig,xg,yg,zg,wg]=CreateNURBSBasis3D(filres,degree,'Gauss_points');
-    [dphidxg,dphidyg,dphidzg,xg,yg,zg,wg]=CreateGradNURBSBasis3D(filres,degree,'Gauss_points',1,'physical');
+    [phig,xg,yg,zg,wg]=CreateNURBSBasis3D(filreso,degree,'Gauss_points');
+    [dphidxg,dphidyg,dphidzg,xg,yg,zg,wg]=CreateGradNURBSBasis3D(filreso,degree,'Gauss_points',1,'physical');
     P=phig'*(wg*phig);
     phig=wg*phig;
-    [phin]=CreateNURBSBasis3D(filres,degree,'nodes');
+    [phin]=CreateNURBSBasis3D(filreso,degree,'nodes');
 end
 phi0=sparse(size(dphidx,1),size(dphidx,2));
 Uxx=[dphidx,phi0,phi0];

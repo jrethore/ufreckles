@@ -6,6 +6,9 @@ tic;
 load(fullfile('TMP',sprintf('%d_params',nmod)),'param');
 pscale=2^(iscale-1);
 sbasis=param.basis;
+if iscale>1
+    sbasis='fem';
+end
 sizeim=ones(1,3);
 switch sbasis
     case 'fem'

@@ -66,25 +66,25 @@ for iz=1:size(model.zone,2)
                     inbox=find(inpolygon(xgloc,ygloc,xoo([1:4,1]),yoo([1:4,1])));
                     cin=conng(inbox,:);
                     if 0
-                    figure
-                    triplot(cin,xglo*t(1)+yglo*t(2),xglo*n(1)+yglo*n(2))
-                    hold on
-                    plot(xg,yg,'ro')
-                       xloc=xglo*t(1)+yglo*t(2);
-                 
-                    yloc=xglo*n(1)+yglo*n(2);
-                 distn=abs(xloc+1i*yloc);
-                 
-                    angln=angle(xloc+1i*yloc);
-                                         [harm1,amp1]=KMPotFourrier(1,1,kappa);
-                feq=0*distn(:);
-                for kk=1:3
-                    feq=feq+amp1(kk)*exp(harm1(kk)*angln(:)*1i/2);
-                end
-                feq=feq.*(distn(:).^(1/2));
-U=[imag(feq)*n(1)+real(feq)*t(1);imag(feq)*n(2)+real(feq)*t(2)]/scal;
-                    figure
-                    trimesh(conng,xglo,yglo,U((size(U,1)/2+1):end))
+                        figure
+                        triplot(cin,xglo*t(1)+yglo*t(2),xglo*n(1)+yglo*n(2))
+                        hold on
+                        plot(xg,yg,'ro')
+                        xloc=xglo*t(1)+yglo*t(2);
+                        
+                        yloc=xglo*n(1)+yglo*n(2);
+                        distn=abs(xloc+1i*yloc);
+                        
+                        angln=angle(xloc+1i*yloc);
+                        [harm1,amp1]=KMPotFourrier(1,1,kappa);
+                        feq=0*distn(:);
+                        for kk=1:3
+                            feq=feq+amp1(kk)*exp(harm1(kk)*angln(:)*1i/2);
+                        end
+                        feq=feq.*(distn(:).^(1/2));
+                        U=[imag(feq)*n(1)+real(feq)*t(1);imag(feq)*n(2)+real(feq)*t(2)]/scal;
+                        figure
+                        trimesh(conng,xglo,yglo,U((size(U,1)/2+1):end))
                     end
                     for ie=1:size(cin,1)
                         inods=cin(ie,:);
@@ -110,7 +110,7 @@ U=[imag(feq)*n(1)+real(feq)*t(1);imag(feq)*n(2)+real(feq)*t(2)]/scal;
                             uyxi=0*xig;
                             uxii=0*xig;
                             uyii=0*xig;
-                           if any(face_elts==inbox(ie))
+                            if any(face_elts==inbox(ie))
                                 xigglo=N*xn(inods);
                                 yigglo=N*yn(inods);
                                 [crack,~]=GetSignedDistanceToCrack(xyc,xigglo+1i*yigglo);
@@ -153,8 +153,8 @@ U=[imag(feq)*n(1)+real(feq)*t(1);imag(feq)*n(2)+real(feq)*t(2)]/scal;
                                     uxyi=uxyi+N_y*uxi(in);
                                     uyxi=uyxi+N_x*uyi(in);
                                 end
-                                    uxii=uxii+(N*uxi);
-                                    uyii=uyii+(N*uyi);
+                                uxii=uxii+(N*uxi);
+                                uyii=uyii+(N*uyi);
                             end
                             exx(wig)=exxi;
                             eyy(wig)=eyyi;
@@ -226,35 +226,35 @@ U=[imag(feq)*n(1)+real(feq)*t(1);imag(feq)*n(2)+real(feq)*t(2)]/scal;
                         k(2*(iz-1)+itip,im)=-Es/(2*scal)*(wdetJ'*(Jx+Jy));
                     end
                     
-                            phic=zeros(length(dist),2*length(km_indices));
-                            icon=0;
-        for m=1:2
-            for ii=1:length(km_indices)
-                icon=icon+1;
-                meq=m;
-                heq=km_indices(ii);
-                [harm1,amp1]=KMPotFourrier(meq,heq,kappa);
-                feq=0*dist(:);
-                for kk=1:3
-                    feq=feq+amp1(kk)*exp(harm1(kk)*angl(:)*1i/2);
-                end
-                feq=feq.*(dist(:).^(heq/2));
-                
-                phic(:,icon)=feq(:);
-            end
-        end
-                           M=real(phic'*(diag(wdetJ)*phic));
-        F=real(phic'*(diag(wdetJ)*(ux+1i*uy)));
-        [LT,UT]=lu(sparse(M));
-        Ukm=UT\(LT\F); 
-        found=find(km_indices==1);
-        k(2*(iz-1)+itip,3+1)=scal*Ukm(found);
-        k(2*(iz-1)+itip,3+2)=scal*Ukm(found+length(km_indices));
-        found=find(km_indices==2);
-        k(2*(iz-1)+itip,3+3)=[scal*Ukm(found)]*4/sqrt(2*pi);
-        found=find(km_indices==3);
-        k(2*(iz-1)+itip,3+4)=[scal*Ukm(found)];
-
+                    phic=zeros(length(dist),2*length(km_indices));
+                    icon=0;
+                    for m=1:2
+                        for ii=1:length(km_indices)
+                            icon=icon+1;
+                            meq=m;
+                            heq=km_indices(ii);
+                            [harm1,amp1]=KMPotFourrier(meq,heq,kappa);
+                            feq=0*dist(:);
+                            for kk=1:3
+                                feq=feq+amp1(kk)*exp(harm1(kk)*angl(:)*1i/2);
+                            end
+                            feq=feq.*(dist(:).^(heq/2));
+                            
+                            phic(:,icon)=feq(:);
+                        end
+                    end
+                    M=real(phic'*(diag(wdetJ)*phic));
+                    F=real(phic'*(diag(wdetJ)*(ux+1i*uy)));
+                    [LT,UT]=lu(sparse(M));
+                    Ukm=UT\(LT\F);
+                    found=find(km_indices==1);
+                    k(2*(iz-1)+itip,3+1)=scal*Ukm(found);
+                    k(2*(iz-1)+itip,3+2)=scal*Ukm(found+length(km_indices));
+                    found=find(km_indices==2);
+                    k(2*(iz-1)+itip,3+3)=[scal*Ukm(found)]*4/sqrt(2*pi);
+                    found=find(km_indices==3);
+                    k(2*(iz-1)+itip,3+4)=[scal*Ukm(found)];
+                    
                 end
             end
             

@@ -7,8 +7,8 @@ mask_radius=cparam.mask_radius;% taille de la zone a exclure au niveau de la poi
 mask_width=cparam.mask_width;% taille de la zone a exclure le long des faces de la fissure
 km_indices=-3:7;
 modes=[1,2];
-mu=cparam.mu;% module de young
-kappa=cparam.kappa;% coefficient de poisson
+mu=cparam.mu;% module de cisaillement
+kappa=cparam.kappa;% kolossov constant
 %mu=0.5*E/(1+nu);
 %kappa=(3-4*nu);% kolossov constant en deformation plane (echantillon massif)
 pix2m=cparam.pix2m;% correspondance pixel/metre
@@ -246,7 +246,7 @@ for iim=size(U,2):-1:1
         end
         disp(sprintf('At iteration %2d decx %f applied dda %f',iteration,decx,dda));
         
-        if check&&~(((iteration<maxiter) && (abs(decx)>1||iteration==0)))
+        if check%&&~(((iteration<maxiter) && (abs(decx)>1||iteration==0)))
             Xi=real(zo*exp(-1i*thetap));
             Yi=imag(zo*exp(-1i*thetap));
             maskn=diag(mask);

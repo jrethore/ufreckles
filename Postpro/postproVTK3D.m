@@ -2,9 +2,6 @@ function postproVTK3D(filreso,submean,do_error)
 if nargin<2,submean=1;end
 if nargin<3,do_error=1;end
     nmod=1;
-
-tic
-
 [pp,filres,ext]=fileparts(filreso);
 if isempty(ext)
     filreso=[filreso,'.mat'];

@@ -2,7 +2,11 @@ function [dphidx,dphidy,dphidz,Xi,Yi,Zi,wgi]=CreateGradNURBSBasis3D(mesh_file,p,
 if nargin < 3 , GaussPts='Gauss_points';end
 if nargin < 4 , pscale=1;end
 if nargin < 5 , frame='parametric';end
-load(mesh_file,'Px','Py','Pz','uo','vo','wo','Nbselems');
+[pp,filname,ext]=fileparts(mesh_file);
+if isempty(ext)
+    mesh_file=[mesh_file,'.mat'];
+end
+load(mesh_file,'Px','Py','Pz','uo','vo','wo','Nbselems','-mat');
 uo=(uo-0.5)*pscale+0.5;
 vo=(vo-0.5)*pscale+0.5;
 wo=(wo-0.5)*pscale+0.5;
@@ -16,7 +20,7 @@ switch GaussPts
         Xi=Xi(:);Yi=Yi(:);Zi=Zi(:);
         wgi=1;
     case 'nodes'
-        load(mesh_file,'ui','vi','wi');
+        load(mesh_file,'ui','vi','wi','-mat');
         Yi=vi;
         Xi=ui;
         Zi=wi;

@@ -91,7 +91,7 @@ res=1;
 %         end
     end
     if check
-    figure
+    fig=figure;
     title(sprintf('Image %d/%d',ijm,nmax));
     hold on
     end
@@ -158,7 +158,7 @@ end
         ii=ii+1;
     end
     if check 
-        close all
+        close(fig)
  pause(0.1)
     end
     U(:,ijm)=Ui;

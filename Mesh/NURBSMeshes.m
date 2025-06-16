@@ -48,6 +48,7 @@ for iscale=1:nscale
                 mesh_size(3)=sizeim(3)-1;
                 zo=(0:mesh_size(3):sizeim(3)-1)+1;
             end
+            zo=zo-floor(mean(zo)-sizeim(3)/2);
         else
             zo=1;
         end

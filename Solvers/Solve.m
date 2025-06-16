@@ -170,8 +170,8 @@ for ijm=1:nmax
                     end
                 end
             end
-            mean0=mean(im0(:));
-            std0=std(im0(:));
+            mean0=mean(im0(on));
+            std0=std(im0(on));
             im0=im0-mean0;
         end
         for icamd=1:size(indcam,2)
@@ -500,6 +500,7 @@ fclose(fid);
         %         end
         
         maske=disc<0;
+        maske(~on)=1;
         mean1=mean(disc(~maske));
         std1=std(disc(~maske));
         disc=disc-mean1;

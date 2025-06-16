@@ -125,7 +125,7 @@ cmap=[
     0.9883    0.6523    0.2114;...
     0.9891    0.8064    0.1459;...
     0.9400    0.9752    0.1313;...
-];
+    ];
 %handles.cmap=interp1(cmap,1:0.05:size(cmap,1));
 
 handles.cmap=interp1(cmap,linspace(1,size(cmap,1),nb_cols_cscale));
@@ -2542,8 +2542,8 @@ if ~isempty(indc)
                         end
                     end
                     %                    nodes=new_id(nodes);
-                    nodes(nodes==0)=[];
                     if id==1,tipin=[nodes(1),nodes(end)]>0;end
+                                        nodes(nodes==0)=[];
                     segc=[nodes(1:end-1),nodes(2:end)];
                     eneighboor=GetEltsFromNodes(conn,3*ones(size(conn,1),1),nodes);
                     neighboor=conn(eneighboor,:);
@@ -2856,6 +2856,9 @@ if ~exist(fullfile('TMP','ufreckles.res'),'file')
     Nnodes=handles.mvisu.Nnodes;
     Nelems=handles.mvisu.Nelems;
     conn=handles.mvisu.conn;
+    if size(conn,2)==3
+        conn=[conn,zeros(size(conn,1),1)];
+    end
     elt=handles.mvisu.elt;
     rint=handles.sonelt;
     conn=max(conn,1);
@@ -2906,6 +2909,9 @@ if ~exist(fullfile('TMP','ufreckles.res'),'file')
     Nnodes=handles.mvisu.Nnodes;
     Nelems=handles.mvisu.Nelems;
     conn=handles.mvisu.conn;
+    if size(conn,2)==3
+        conn=[conn,zeros(size(conn,1),1)];
+    end
     elt=handles.mvisu.elt;
     %    rint=1;
     rint=handles.sonelt;
@@ -3859,6 +3865,9 @@ if handles.preview||strcmp(handles.fbasis,'fem')
         xo=handles.mvisu.xos{ijm};
         yo=handles.mvisu.yos{ijm};
         conn=handles.mvisu.conns{ijm};
+        if size(conn,2)==3
+            conn=[conn,zeros(size(conn,1),1)];
+        end
         Nnodes=size(xo);
         Nelems=[size(conn,1),1,1];
         elt=3*ones(prod(Nelems),1);
@@ -8699,7 +8708,11 @@ if handles.preview
                 set(fgage,'NumberTitle','off');
                 box('on');
                 hold('all');
-                plot(images,T,'DisplayName','T','Parent',axes1,'LineWidth',2);
+                if numel(T)==1
+                    plot(images,T,'x','DisplayName','T','Parent',axes1,'LineWidth',2);
+                else
+                    plot(images,T,'DisplayName','T','Parent',axes1,'LineWidth',2);
+                end
                 ylabel('T-stress','FontSize',20,'FontName','Times');
                 xlabel('Step','FontSize',20,'FontName','Times');
             end
@@ -8718,7 +8731,11 @@ if handles.preview
                 set(fgage,'NumberTitle','off');
                 box('on');
                 hold('all');
-                plot(images,B,'DisplayName','B','Parent',axes1,'LineWidth',2);
+                if numel(B)==1
+                    plot(images,B,'x','DisplayName','B','Parent',axes1,'LineWidth',2);
+                else
+                    plot(images,B,'DisplayName','B','Parent',axes1,'LineWidth',2);
+                end
                 ylabel('B-stress','FontSize',20,'FontName','Times');
                 xlabel('Step','FontSize',20,'FontName','Times');
             end
@@ -8738,7 +8755,11 @@ if handles.preview
                 set(fgage,'NumberTitle','off');
                 box('on');
                 hold('all');
-                plot(images,da,'DisplayName','a','Parent',axes1,'LineWidth',2);
+                if numel(da)==1
+                    plot(images,da,'x','DisplayName','a','Parent',axes1,'LineWidth',2);
+                else
+                    plot(images,da,'DisplayName','a','Parent',axes1,'LineWidth',2);
+                end
                 ylabel('Crack length [m]','FontSize',20,'FontName','Times');
                 xlabel('Step','FontSize',20,'FontName','Times');
             end
@@ -8751,7 +8772,11 @@ if handles.preview
             set(fgage,'NumberTitle','off');
             box('on');
             hold('all');
-            plot(da,K1,'DisplayName','a','Parent',axes1,'LineWidth',2);
+            if numel(da)==1
+                plot(da,K1,'x','DisplayName','a','Parent',axes1,'LineWidth',2);
+            else
+                plot(da,K1,'DisplayName','a','Parent',axes1,'LineWidth',2);
+            end
             xlabel('Crack length [m]','FontSize',20,'FontName','Times');
             ylabel('SIF','FontSize',20,'FontName','Times');
             
@@ -8769,7 +8794,7 @@ if handles.preview
             filexp=sprintf('%s-crack-%02d-sif.csv',filename,id);
             if exist(filexp,'file')
                 set(handles.message_text,'String',sprintf('%s already exists.....',filexp))
-                [filexp,pp]=uiputfile({'*.csv','CSV ascii file (*.csv)'},'Save gage data...',filexp);
+                [filexp,pp]=uiputfile({'*.csv','CSV ascii file (*.csv)'},'Save crack data...',filexp);
             end
             
             fid=fopen(filexp,'w');
@@ -8782,6 +8807,9 @@ if handles.preview
             if isfield(handles.param,'deformed_image')
                 if isempty(handles.param.deformed_image)
                     dic=0;
+                end
+                if ~iscell(handles.param.deformed_image)
+                    handles.param.deformed_image={handles.param.deformed_image};          
                 end
             end
             if dic
@@ -9773,7 +9801,6 @@ function cmenu_beam_kine_timosh_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handles.beam_model.beam_type='timoshenko';
 handles=set_param(handles);
-
 
 % --------------------------------------------------------------------
 function cmenu_field_data_shearstrain_Callback(hObject, eventdata, handles)
